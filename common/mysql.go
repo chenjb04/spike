@@ -1,6 +1,9 @@
 package common
 
-import "database/sql"
+import (
+	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
+)
 
 // 创建MySQL连接
 func NewMySQLConn() (db *sql.DB, err error) {

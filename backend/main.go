@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"github.com/kataras/iris"
-	"github.com/kataras/iris/mvc"
+	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/mvc"
 	"log"
 	"spike/backend/web/controllers"
 	"spike/common"
@@ -20,7 +20,7 @@ func main() {
 	template := iris.HTML("./backend/web/views", ".html").Layout("shared/layout.html").Reload(true)
 	app.RegisterView(template)
 	//设置静态资源目录
-	app.HandleDir("/assets", iris.Dir("./backend/web/assets"))
+	app.HandleDir("/assets", "./backend/web/assets")
 	//出现异常跳转
 	app.OnAnyErrorCode(func(ctx iris.Context) {
 		ctx.ViewData("message", ctx.Values().GetStringDefault("message", "访问的页面出错"))
