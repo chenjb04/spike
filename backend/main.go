@@ -1,6 +1,15 @@
 package main
 
-import "github.com/kataras/iris"
+import (
+	"context"
+	"github.com/kataras/iris"
+	"github.com/kataras/iris/mvc"
+	"log"
+	"spike/backend/web/controllers"
+	"spike/common"
+	"spike/repositories"
+	"spike/services"
+)
 
 func main() {
 	//创建iris
@@ -19,7 +28,19 @@ func main() {
 		ctx.View("shared/error.html")
 
 	})
+	db, err := common.NewMySQLConn()
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	//注册控制器
+	productRepository := repositories.NewProductManager("product", db)
+	ProductService := services.NewProductService(productRepository)
+	productParty := app.Party("/product")
+	product := mvc.New(productParty)
+	product.Register(ctx, ProductService)
+	product.Handle(new(controllers.ProductController))
 	//启动服务
 	app.Run(iris.Addr("localhost:8080"), iris.WithoutServerError(iris.ErrServerClosed), iris.WithOptimizations)
 
