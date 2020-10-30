@@ -96,7 +96,21 @@ func (p *ProductManager) Update(product *datamodels.Product) (err error) {
 }
 
 //查询一条数据
-func (p *ProductManager) SelectByKey(productId int64) (product *datamodels.Product, err error) {
+func (p *ProductManager) SelectByKey(productID int64) (product *datamodels.Product, err error) {
+	if err = p.Conn(); err != nil {
+		return &datamodels.Product{}, err
+	}
+	selectOneSql := "select * from " + p.table + " where productID=" + strconv.FormatInt(productID, 10)
+	row, err := p.mysqlConn.Query(selectOneSql)
+	if err != nil {
+		return &datamodels.Product{}, err
+	}
+	result := common.GetResultRow(row)
+	if len(result) == 0 {
+		return &datamodels.Product{}, nil
+	}
+	//数据映射到结构体
+	common.DataToStructByTagSql(result, product)
 	return
 }
 
