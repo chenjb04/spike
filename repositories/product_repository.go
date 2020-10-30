@@ -47,7 +47,19 @@ func (p *ProductManager) Conn() (err error) {
 
 //插入数据
 func (p *ProductManager) Insert(product *datamodels.Product) (productId int64, err error) {
-	return
+	if err = p.Conn(); err != nil {
+		return 0, err
+	}
+	insertSql := "insert into product(productName, productNum, productImage, ProductUrl) values(?, ?, ?, ?)"
+	stmt, err := p.mysqlConn.Prepare(insertSql)
+	if err != nil {
+		return 0, err
+	}
+	result, err := stmt.Exec(product.ProductName, product.ProductNum, product.ProductImage, product.ProductUrl)
+	if err != nil {
+		return 0, err
+	}
+	return result.LastInsertId()
 }
 
 //删除数据
