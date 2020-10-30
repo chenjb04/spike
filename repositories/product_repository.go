@@ -63,7 +63,18 @@ func (p *ProductManager) Insert(product *datamodels.Product) (productId int64, e
 }
 
 //删除数据
-func (p *ProductManager) Delete(productId int64) bool {
+func (p *ProductManager) Delete(productID int64) bool {
+	if err := p.Conn(); err != nil {
+		return false
+	}
+	deleteSql := "delete from product where ID=?"
+	stmt, err := p.mysqlConn.Prepare(deleteSql)
+	if err != nil {
+		return false
+	}
+	if _, err = stmt.Exec(productID); err != nil {
+		return false
+	}
 	return true
 }
 
