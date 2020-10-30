@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"spike/common"
 	"spike/datamodels"
+	"strconv"
 )
 
 type IProduct interface {
@@ -80,6 +81,17 @@ func (p *ProductManager) Delete(productID int64) bool {
 
 //修改数据
 func (p *ProductManager) Update(product *datamodels.Product) (err error) {
+	if err := p.Conn(); err != nil {
+		return err
+	}
+	updateSql := "update product set ProductName=?, ProductNum=?, productImage=?, ProductUrl=? where ProductID=" + strconv.FormatInt(product.ID, 10)
+	stmt, err := p.mysqlConn.Prepare(updateSql)
+	if err != nil {
+		return err
+	}
+	if _, err = stmt.Exec(product.ProductName, product.ProductNum, product.ProductImage, product.ProductUrl); err != nil {
+		return err
+	}
 	return
 }
 
