@@ -51,7 +51,7 @@ func (p *ProductManager) Insert(product *datamodels.Product) (productId int64, e
 	if err = p.Conn(); err != nil {
 		return 0, err
 	}
-	insertSql := "insert into product(productName, productNum, productImage, ProductUrl) values(?, ?, ?, ?)"
+	insertSql := "insert into " + p.table + "(productName, productNum, productImage, ProductUrl) values(?, ?, ?, ?)"
 	stmt, err := p.mysqlConn.Prepare(insertSql)
 	if err != nil {
 		return 0, err
@@ -68,7 +68,7 @@ func (p *ProductManager) Delete(productID int64) bool {
 	if err := p.Conn(); err != nil {
 		return false
 	}
-	deleteSql := "delete from product where ID=?"
+	deleteSql := "delete from " + p.table + " where ID=?"
 	stmt, err := p.mysqlConn.Prepare(deleteSql)
 	if err != nil {
 		return false
@@ -84,7 +84,7 @@ func (p *ProductManager) Update(product *datamodels.Product) (err error) {
 	if err := p.Conn(); err != nil {
 		return err
 	}
-	updateSql := "update product set ProductName=?, ProductNum=?, productImage=?, ProductUrl=? where ProductID=" + strconv.FormatInt(product.ID, 10)
+	updateSql := "update " + p.table + " set ProductName=?, ProductNum=?, productImage=?, ProductUrl=? where ProductID=" + strconv.FormatInt(product.ID, 10)
 	stmt, err := p.mysqlConn.Prepare(updateSql)
 	if err != nil {
 		return err
@@ -115,6 +115,24 @@ func (p *ProductManager) SelectByKey(productID int64) (product *datamodels.Produ
 }
 
 //查询所有数据
-func (p *ProductManager) SelectAll() (product []*datamodels.Product, err error) {
+func (p *ProductManager) SelectAll() (productArray []*datamodels.Product, err error) {
+	if err = p.Conn(); err != nil {
+		return nil, err
+	}
+	selectAllSql := "select * from " + p.table
+	rows, err := p.mysqlConn.Query(selectAllSql)
+	if err != nil {
+		return nil, err
+	}
+	result := common.GetResultRows(rows)
+	if len(result) == 0 {
+		return nil, nil
+	}
+	//数据映射到结构体
+	for _, v := range result {
+		product := &datamodels.Product{}
+		common.DataToStructByTagSql(v, product)
+		productArray = append(productArray, product)
+	}
 	return
 }
