@@ -145,7 +145,7 @@ func (o *OrderManager) SelectAllWithInfo() (orderMap map[int]map[string]string, 
 	if err = o.Conn(); err != nil {
 		return nil, err
 	}
-	selectAllSql := "select o.ID,p.ProductName,o.OrderStatus from " + o.table + "as o left join product p on o.productID = p.productID"
+	selectAllSql := "select o.ID,p.productName,o.orderStatus from " + "`" + o.table + "`" + " as o left join product as p on o.productID=p.ID"
 	rows, err := o.mysqlConn.Query(selectAllSql)
 	if err != nil {
 		return nil, err
