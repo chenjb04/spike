@@ -51,7 +51,7 @@ func (p *ProductManager) Insert(product *datamodels.Product) (productId int64, e
 	if err = p.Conn(); err != nil {
 		return 0, err
 	}
-	insertSql := "insert into " + p.table + "(productName, productNum, productImage, ProductUrl) values(?, ?, ?, ?)"
+	insertSql := "insert into " + p.table + "(productName, productNum, productImage, productUrl) values(?, ?, ?, ?)"
 	stmt, err := p.mysqlConn.Prepare(insertSql)
 	if err != nil {
 		return 0, err
@@ -84,7 +84,7 @@ func (p *ProductManager) Update(product *datamodels.Product) (err error) {
 	if err := p.Conn(); err != nil {
 		return err
 	}
-	updateSql := "update " + p.table + " set ProductName=?, ProductNum=?, productImage=?, ProductUrl=? where ProductID=" + strconv.FormatInt(product.ID, 10)
+	updateSql := "update " + p.table + " set ProductName=?, ProductNum=?, productImage=?, productUrl=? where ID=" + strconv.FormatInt(product.ID, 10)
 	stmt, err := p.mysqlConn.Prepare(updateSql)
 	if err != nil {
 		return err
@@ -100,12 +100,13 @@ func (p *ProductManager) SelectByKey(productID int64) (product *datamodels.Produ
 	if err = p.Conn(); err != nil {
 		return &datamodels.Product{}, err
 	}
-	selectOneSql := "select * from " + p.table + " where productID=" + strconv.FormatInt(productID, 10)
+	selectOneSql := "select * from " + p.table + " where ID=" + strconv.FormatInt(productID, 10)
 	row, err := p.mysqlConn.Query(selectOneSql)
 	if err != nil {
 		return &datamodels.Product{}, err
 	}
 	result := common.GetResultRow(row)
+	product = &datamodels.Product{}
 	if len(result) == 0 {
 		return &datamodels.Product{}, nil
 	}
