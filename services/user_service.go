@@ -11,7 +11,7 @@ type IUserService interface {
 	AddUser(user *datamodels.User) (userId int64, err error)
 }
 
-func NewService(repository repositories.IUserRepository) IUserService {
+func NewUserService(repository repositories.IUserRepository) IUserService {
 	return &UserService{repository}
 }
 
