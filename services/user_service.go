@@ -20,12 +20,11 @@ type UserService struct {
 }
 
 func (u *UserService) IsPwdSuccess(userName string, password string) (user *datamodels.User, isOk bool) {
-	var err error
-	user, err = u.UserRepository.Select(userName)
+	user, err := u.UserRepository.Select(userName)
 	if err != nil {
 		return
 	}
-	isOk, _ = validatePassword(password, user.HashPassword)
+	isOk, _ = ValidatePassword(password, user.HashPassword)
 	if !isOk {
 		return &datamodels.User{}, false
 	}
@@ -35,13 +34,13 @@ func (u *UserService) IsPwdSuccess(userName string, password string) (user *data
 func (u *UserService) AddUser(user *datamodels.User) (userId int64, err error) {
 	pwd, err := GeneratePassword(user.HashPassword)
 	if err != nil {
-		return
+		return userId, err
 	}
 	user.HashPassword = string(pwd)
 	return u.UserRepository.Insert(user)
 }
 
-func validatePassword(password string, hashPassword string) (isOk bool, err error) {
+func ValidatePassword(password string, hashPassword string) (isOk bool, err error) {
 	if err = bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(password)); err != nil {
 		return false, err
 	}

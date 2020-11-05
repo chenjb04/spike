@@ -34,16 +34,15 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	session := sessions.New(sessions.Config{Cookie: "helloworld", Expires: 60 * time.Minute})
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	session := sessions.New(sessions.Config{Cookie: "helloworld", Expires: 60 * time.Minute})
 	//注册控制器
 	userRepository := repositories.NewUserManagerRepository("user", db)
-	UserService := services.NewUserService(userRepository)
-	userParty := app.Party("/user")
-	user := mvc.New(userParty)
-	user.Register(ctx, UserService, session.Start)
+	userService := services.NewUserService(userRepository)
+	user := mvc.New(app.Party("/user"))
+	user.Register(userService, ctx, session.Start)
 	user.Handle(new(controllers.UserController))
 	//启动服务
 	app.Run(iris.Addr("0.0.0.0:8082"), iris.WithoutServerError(iris.ErrServerClosed), iris.WithOptimizations)

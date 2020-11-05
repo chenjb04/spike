@@ -49,11 +49,11 @@ func (u *UserManagerRepository) Select(userName string) (user *datamodels.User, 
 		return &datamodels.User{}, err
 	}
 	result := common.GetResultRow(row)
-	user = &datamodels.User{}
 	if len(result) == 0 {
 		return &datamodels.User{}, nil
 	}
 	//数据映射到结构体
+	user = &datamodels.User{}
 	common.DataToStructByTagSql(result, user)
 	return
 
@@ -61,15 +61,14 @@ func (u *UserManagerRepository) Select(userName string) (user *datamodels.User, 
 
 func (u *UserManagerRepository) Insert(user *datamodels.User) (userId int64, err error) {
 	if err = u.Conn(); err != nil {
-		return 0, nil
+		return
 	}
-
-	insertSql := "insert into " + u.table + " user(nickName,  userName, password) values(?,?,?)"
+	insertSql := "insert into " + u.table + "(nickName,  userName, password) values(?,?,?)"
 	stmt, err := u.mysqlConn.Prepare(insertSql)
 	if err != nil {
 		return userId, err
 	}
-	result, err := stmt.Exec(user.Nickname, user.Username, user.HashPassword)
+	result, err := stmt.Exec(user.NickName, user.UserName, user.HashPassword)
 	if err != nil {
 		return userId, err
 	}
@@ -92,5 +91,5 @@ func (u *UserManagerRepository) SelectById(userId int64) (user *datamodels.User,
 	}
 	user = &datamodels.User{}
 	common.DataToStructByTagSql(result, user)
-	return user, nil
+	return
 }
